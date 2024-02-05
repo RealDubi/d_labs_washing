@@ -10,7 +10,7 @@ Instagram https://www.instagram.com/d.labs.scripts
 # v1.0.0 (2023/12/03)
 - Release
 
-# v1.0.0 (2023/02/05)
+# v1.0.1 (2023/02/05)
 - Add prop 
 - Bug fix
 
