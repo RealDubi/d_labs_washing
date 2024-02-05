@@ -52,12 +52,12 @@ function startWashing(_)
     local entityMove = _
     local entityMoveCoords = GetEntityCoords(entityMove)
 
-    TaskGoToCoordAnyMeans(PlayerPedId(), entityMoveCoords.x, entityMoveCoords.y, entityMoveCoords.z, 1.0, 0.0, false, 0.0)
+    TaskGoToCoordAnyMeans(PlayerPedId(), entityMoveCoords.x, entityMoveCoords.y, entityMoveCoords.z, 1.0, false, false, false)
     while GetScriptTaskStatus(PlayerPedId(), 0x93399E79) ~= 8 do
         Citizen.Wait(0)
     end
     Wait(100)
-    TaskTurnPedToFaceEntity(PlayerPedId(),entityMove,1000,0.5,0.5,0.0)
+    TaskTurnPedToFaceEntity(PlayerPedId(),entityMove,-1,1,1,1)
     Citizen.Wait(2000)
     SetAnim('amb_misc@world_human_wash_face_bucket@table@male_a@idle_b', 'idle_e')
     Citizen.Wait(3000)
@@ -72,6 +72,7 @@ function startWashing(_)
     ClearPedTasks(PlayerPedId())
     control = false
     TriggerEvent("Notification:d_labs_washing", 'success', text.notif, Config.Textures.alert[1], Config.Textures.alert[2], 2000)
+    SetEntityAsNoLongerNeeded(entityMove)  
     Citizen.Wait(2*1000)
 end
 
@@ -104,7 +105,7 @@ Citizen.CreateThread(function()
         for k, v in pairs(Config.Prop) do
             local entityCoords = nil
 
-            activeEntity = GetClosestObjectOfType(PedCoords.x, PedCoords.y, PedCoords.z, 3.0, GetHashKey(v),false, false)
+            local activeEntity = GetClosestObjectOfType(PedCoords.x, PedCoords.y, PedCoords.z, 10.0, GetHashKey(v),false, false)
             if DoesEntityExist(activeEntity) then
                 entityCoords = GetEntityCoords(activeEntity)
             end
@@ -118,9 +119,10 @@ Citizen.CreateThread(function()
                     SendEntity = activeEntity
                 end
             end
+            SetEntityAsNoLongerNeeded(activeEntity)   
         end
 
-        if closestDistance < 3 then 
+        if closestDistance < Config.Distance then 
             local label = CreateVarString(10,'LITERAL_STRING', text.standingWater)
             PromptSetActiveGroupThisFrame(PromptGroup, label)
 
@@ -130,9 +132,6 @@ Citizen.CreateThread(function()
         else
             Citizen.Wait(2000)
         end
-
-        SetEntityAsNoLongerNeeded(activeEntity)
-
     end
 end)
 
