@@ -8,6 +8,7 @@ Config.Prop = {
     [2] = 'p_barrel_ladle01x',
     [3] = 'p_barrelladle1x_savage',
     [4] = 'p_barrel_wash01x',
+    [5] = 'p_watertrough01x',
 }
 
 Config.Prompts = {
@@ -16,6 +17,8 @@ Config.Prompts = {
 
 -- Key hash 
 -- https://github.com/mja00/redm-shit/blob/master/nuiweaponspawner/config.lua
+
+Config.Distance = 2.0
 
 Config.Texts = {
     washing = 'Wash',
