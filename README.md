@@ -14,5 +14,8 @@ Instagram https://www.instagram.com/d.labs.scripts
 - Add prop 
 - Bug fix
 
+# v1.0.2 (2023/02/26)
+- Optimization
+- Bug fix
 
 
