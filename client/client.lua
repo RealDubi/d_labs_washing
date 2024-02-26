@@ -90,52 +90,67 @@ function DisableControl()
     end)
 end
 
+
 --- MAIN 
+
+function GetPropToInteraction(_n,_r)
+    local playerCoords = GetEntityCoords(PlayerPedId())
+    local closestDistance = tonumber(_r) or 5.0
+    local SendEntity = nil
+    local name = _n
+    local objects = GetGamePool('CObject')
+
+    for _, entity in pairs(objects) do
+        if GetEntityModel(entity) == name then
+            local entityCoords = GetEntityCoords(entity)
+            local distance = #(playerCoords - entityCoords)
+
+            if distance < closestDistance then
+                closestDistance = distance
+                SendEntity = entity
+            end
+            SetEntityAsNoLongerNeeded(entity)
+        end
+    end
+
+    return SendEntity
+end
 
 Citizen.CreateThread(function()
     while true do 
-        Citizen.Wait(0)
-        local max = 9999999
-        local closestCoords = nil
-        local closestDistance = max
-        local PedCoords = GetEntityCoords(PlayerPedId())
-        local SendEntity = nil
+        Citizen.Wait(5)
+        local entity = nil
 
+        for _, v in pairs(Config.Prop) do
+            local set = GetPropToInteraction(GetHashKey(v), Config.Distance) 
 
-        for k, v in pairs(Config.Prop) do
-            local entityCoords = nil
-
-            local activeEntity = GetClosestObjectOfType(PedCoords.x, PedCoords.y, PedCoords.z, 10.0, GetHashKey(v),false, false)
-            if DoesEntityExist(activeEntity) then
-                entityCoords = GetEntityCoords(activeEntity)
+            if set then
+                entity = set
+            end
             end
 
-            if entityCoords then
-                local minus = vector3(entityCoords.x,entityCoords.y,entityCoords.z)
-                local distance = #(GetEntityCoords(PlayerPedId()) - minus)
-                if distance < closestDistance then
-                    closestDistance = distance
-                    closestCoords = entityCoords
-                    SendEntity = activeEntity
+            if entity then
+                local playerCoords = GetEntityCoords(PlayerPedId())
+            local entityCoords = GetEntityCoords(entity)
+                local distance = #(playerCoords - entityCoords)
+            while distance <= Config.Distance do
+                Citizen.Wait(5)
+                playerCoords = GetEntityCoords(PlayerPedId())
+                entityCoords = GetEntityCoords(entity)
+                distance = #(playerCoords - entityCoords)
+
+                local label = CreateVarString(10, 'LITERAL_STRING', text.standingWater)
+                PromptSetActiveGroupThisFrame(PromptGroup, label)
+
+                if Citizen.InvokeNative(0xC92AC953F0A982AE, PromptKey) then
+                    startWashing(entity)
                 end
             end
-            SetEntityAsNoLongerNeeded(activeEntity)   
-        end
-
-        if closestDistance < Config.Distance then 
-            local label = CreateVarString(10,'LITERAL_STRING', text.standingWater)
-            PromptSetActiveGroupThisFrame(PromptGroup, label)
-
-            if Citizen.InvokeNative(0xC92AC953F0A982AE,PromptKey) then
-                startWashing(SendEntity)
-            end
-        else
-            Citizen.Wait(2000)
+            else
+            Citizen.Wait(2*1000)
         end
     end
 end)
-
-
 
 ------------- onResourceStop
 
@@ -161,6 +176,3 @@ AddEventHandler('Notification:d_labs_washing', function(t1, t2, dict, txtr, time
         exports.d_labs_washing.LeftNot(0, tostring(t1), tostring(t2), tostring(dict), tostring(txtr), tonumber(timer))
     end
 end)
-
-
-
